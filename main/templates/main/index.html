@@ -6,8 +6,35 @@
     <title>{{title}}</title>
 </head>
 <body>
-    <p>{{menu}}</p>
+    <ul>
+        <li><a href="{% url 'home' %}">Main page</a></li>
+        {% for el in menu %}
+            <li>
+                <a href="{% url el.url_name %}">{{el.name}}</a>
+            </li>
+        {% endfor %}
+    </ul>
     <h1>{{title}}</h1>
     <p>{{title}}</p>
+
+    {% include 'main/includes/nav.html' %}
+
+    <ul>
+        {% for p in posts %}
+            {% if p.is_published %}
+                <li>
+                    <h2>{{p.name}}</h2>
+                    <p>{{p.desc}}</p>
+                    <p><a href="{% url 'post' p.id %}">Show more</a></p>
+                    {% if not forloop.last %}
+                        <hr>
+                    {% endif %}
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+
+    {% include 'main/includes/nav.html' %}
+
 </body>
 </html>
