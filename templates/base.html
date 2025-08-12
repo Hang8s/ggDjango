@@ -35,8 +35,11 @@
             <!-- Sidebar on the left -->
             <td valign="top" class="left-chapters">
                 <ul id="leftchapters">
-                    <li class="selected">All Categories</li>
-
+                    {% if cat_selected == 0 %}
+                        <a href="{% url 'home' %}"><li class="selected">All Categories</li></a>
+                    {% else %}
+                        <a href="{% url 'home' %}"><li>All Categories</li></a>
+                    {%endif%}
                     {% show_categories cat_selected %}
 
                     <li class="share">
