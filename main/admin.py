@@ -1,4 +1,5 @@
 from django.contrib import admin , messages
+from django.utils.safestring import mark_safe
 from .models import Women ,Category
 
 class MarriedFilter(admin.SimpleListFilter):
@@ -19,10 +20,11 @@ class MarriedFilter(admin.SimpleListFilter):
 # Register your models here.
 @admin.register(Women)
 class Womenadmin(admin.ModelAdmin):
-    fields = ['title','content','slug','cat','husband','tags']
+    fields = ['title','content','slug','photo','post_photo','cat','husband','tags']
+    readonly_fields =['post_photo']
     prepopulated_fields = {'slug':('title',)}
     filter_horizontal = ['tags']
-    list_display = ('title','time_created','is_published','cat','brief_info')
+    list_display = ('title','post_photo','time_created','is_published','cat','brief_info')
     list_display_links =('title',)
     ordering = ['time_created','title']
 
@@ -34,9 +36,17 @@ class Womenadmin(admin.ModelAdmin):
 
     actions = ['set_published','set_draft']
 
+    save_on_top = True
+
     @admin.display(description='Short description',ordering='content')
     def brief_info(self,women:Women):
         return f'Description {len(women.content)} symbols'
+    
+    @admin.display(description='Img',ordering='content')
+    def post_photo(self,women:Women):
+        if women.photo:
+            return mark_safe(f"<img src='{women.photo.url}' width=50>")
+        return "without photo"
     
     def set_published(self,request,queryset):
         count = queryset.update(is_published = Women.Status.PUBLISHED)

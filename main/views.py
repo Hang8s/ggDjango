@@ -1,6 +1,7 @@
 from django.shortcuts import render , HttpResponse ,redirect , get_object_or_404
 from django.http import HttpResponseNotFound
-from .models import Women , Category , TagPost
+from .models import Women , Category , TagPost , UploadFiles
+from .forms import AddPostForm, UploadFileForm
 
 menu = [
     {"title": "About", "url_name": "about"},
@@ -29,12 +30,45 @@ def show_post(request,post_slug):
             }
     return render(request,'main/post.html',data)
 
+# def handle_uploaded_file(f):
+#     with open(f"uploads/{f.name}", "wb+") as destination:
+#         for chunk in f.chunks():
+#             destination.write(chunk)
+
+
 def about(request):
-    data = {'menu':menu,'title':'About us'}
-    return render(request,'main/about.html',data)
-    
+    if request.method == 'POST' and 'file' in request.FILES:
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            # handle_uploaded_file(form.cleaned_data['file'])
+            fp = UploadFiles(file=form.cleaned_data['file'])
+            fp.save()
+
+    else:
+        form = UploadFileForm()
+    data = {'menu': menu, 'title': 'About us','form':form}
+    return render(request, 'main/about.html', data)
+
 def addpage(request):
-    return HttpResponse('Add article')
+    if request.method == 'POST' :
+        form = AddPostForm(request.POST,request.FILES)
+        if form.is_valid():
+            # print(form.cleaned_data)
+            # try:
+            #     Women.objects.create(**form.cleaned_data)
+            #     return redirect('home')
+            # except:
+            #     form.add_error(None, "Error creating post")
+            form.save()
+            return redirect('home')
+    else:
+        form = AddPostForm()
+    data = {
+        'menu':menu,
+        'title':'Add page',
+        'form':form 
+    }
+    return render(request,'main/addpage.html',data)
 
 def contact(request):
     return HttpResponse('Call back')
